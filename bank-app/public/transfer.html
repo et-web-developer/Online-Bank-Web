@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfer Money | NeoBank</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="boot/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* ===== TRANSFER PAGE STYLES ===== */
+.transfer-page {
+  background-color: #f8f9fa;
+}
+
+.transfer-card {
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border: none;
+}
+
+/* Transfer Steps */
+#transferSteps {
+  position: relative;
+  border-bottom: none;
+}
+
+#transferSteps .nav-link {
+  position: relative;
+  color: var(--text-light);
+  padding: 1rem 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+}
+
+#transferSteps .nav-link.active {
+  color: var(--primary);
+  background: transparent;
+}
+
+#transferSteps .nav-link.active .step-number {
+  background: var(--primary);
+  color: white;
+}
+
+#transferSteps .nav-link.active .step-title {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: var(--text-light);
+  margin-right: 8px;
+  font-size: 0.8rem;
+}
+
+.step-title {
+  font-size: 0.9rem;
+}
+
+/* Recipient Cards */
+.recipient-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.05);
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.recipient-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.recipient-card.selected {
+  border-color: var(--primary);
+  background: rgba(108, 92, 231, 0.05);
+}
+
+.recipient-card .fa-check-circle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--success);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.recipient-card.selected .fa-check-circle {
+  opacity: 1;
+}
+
+.recipient-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.recipient-avatar-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.recipient-summary {
+  display: flex;
+  align-items: center;
+}
+
+/* Amount Presets */
+.amount-presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  border-radius: 20px;
+  padding: 0.25rem 1rem;
+}
+
+/* Transfer Summary */
+.transfer-summary-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.total {
+  font-size: 1.1rem;
+}
+
+/* Transfer Timeline */
+.transfer-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -30px;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: rgba(0,0,0,0.1);
+}
+
+.timeline-icon {
+  position: absolute;
+  left: -38px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .recipient-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .recipient-avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .step-title {
+    display: none;
+  }
+}
+  </style>
+</head>
+<body class="transfer-page">
+  <!-- Top Navigation (consistent with dashboard) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/dashboard.html">
+        <img src="/images/logo.png" alt="NeoBank" height="40" class="d-inline-block align-top me-2">
+        NeoBank
+      </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard.html"><i class="fas fa-home me-1"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/transfer.html"><i class="fas fa-exchange-alt me-1"></i> Transfer</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/transactions.html"><i class="fas fa-history me-1"></i> Transactions</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+              <img src="/images/user-avatar.png" alt="User" class="rounded-circle me-1" width="30" height="30">
+              Me!
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Transfer Content -->
+  <div class="container-fluid pt-5 mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card transfer-card">
+          <div class="card-header bg-white">
+            <h3 class="mb-0"><i class="fas fa-exchange-alt me-2"></i> New Transfer</h3>
+          </div>
+          <div class="card-body">
+            <!-- Transfer Steps Indicator -->
+            <ul class="nav nav-pills mb-4" id="transferSteps">
+              <li class="nav-item flex-grow-1 text-center">
+                <a class="nav-link active" href="#step1" data-bs-toggle="pill">
+                  <span class="step-number">1</span>
+                  <span class="step-title">Recipient</span>
+                </a>
+              </li>
+              <li class="nav-item flex-grow-1 text-center">
+                <a class="nav-link" href="#step2" data-bs-toggle="pill">
+                  <span class="step-number">2</span>
+                  <span class="step-title">Amount</span>
+                </a>
+              </li>
+              <li class="nav-item flex-grow-1 text-center">
+                <a class="nav-link" href="#step3" data-bs-toggle="pill">
+                  <span class="step-number">3</span>
+                  <span class="step-title">Confirm</span>
+                </a>
+              </li>
+            </ul>
+
+            <!-- Transfer Form Steps -->
+            <div class="tab-content" id="transferStepsContent">
+              <!-- Step 1: Recipient -->
+              <div class="tab-pane fade show active" id="step1">
+                <div class="mb-4">
+                  <h5 class="mb-3">Select Recipient</h5>
+                  <div class="recent-recipients mb-4">
+                    <h6 class="text-muted mb-3">Recent Recipients</h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <div class="recipient-card selected">
+                          <img src="/images/user-1.jpg" alt="Sarah" class="recipient-avatar">
+                          <div class="recipient-info">
+                            <h6>Sarah Johnson</h6>
+                            <small>sarah@example.com</small>
+                          </div>
+                          <i class="fas fa-check-circle"></i>
+                        </div>
+                      </div>
+                      <!-- More recipient cards -->
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">Or enter new recipient</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-user"></i></span>
+                      <input type="text" class="form-control" placeholder="Name, email, or phone">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-primary next-step" formaction="#step2">Continue <i class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+              </div>
+
+              <!-- Step 2: Amount -->
+              <div class="tab-pane fade" id="step2">
+                <div class="mb-4">
+                  <h5 class="mb-3">Transfer Details</h5>
+                  
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">From Account</label>
+                      <select class="form-select">
+                        <option>Primary Savings (•••• 4582) - $24,569.00</option>
+                        <option>Secondary Checking (•••• 7813) - $5,200.00</option>
+                      </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label class="form-label">To Recipient</label>
+                      <div class="recipient-summary">
+                        <img src="/images/user-1.jpg" alt="Sarah" class="recipient-avatar-sm">
+                        <div>
+                          <h6 class="mb-0">Sarah Johnson</h6>
+                          <small class="text-muted">sarah@example.com</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-12">
+                      <label class="form-label">Amount</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control form-control-lg" placeholder="0.00" id="transferAmount">
+                      </div>
+                      
+                      <div class="amount-presets mb-4">
+                        <button type="button" class="btn btn-outline-primary preset-btn">$50</button>
+                        <button type="button" class="btn btn-outline-primary preset-btn">$100</button>
+                        <button type="button" class="btn btn-outline-primary preset-btn">$500</button>
+                        <button type="button" class="btn btn-outline-primary preset-btn">$1,000</button>
+                      </div>
+                    </div>
+                    
+                    <div class="col-12">
+                      <label class="form-label">Note (Optional)</label>
+                      <textarea class="form-control" rows="2" placeholder="What's this transfer for?"></textarea>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-outline-secondary prev-step"><i class="fas fa-arrow-left me-2"></i> Back</button>
+                  <button class="btn btn-primary next-step">Continue <i class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+              </div>
+
+              <!-- Step 3: Confirm -->
+              <div class="tab-pane fade" id="step3">
+                <div class="mb-4">
+                  <h5 class="mb-3">Confirm Transfer</h5>
+                  
+                  <div class="transfer-summary-card">
+                    <div class="summary-item">
+                      <span>From Account</span>
+                      <span>Primary Savings (•••• 4582)</span>
+                    </div>
+                    <div class="summary-item">
+                      <span>To Recipient</span>
+                      <div class="recipient-summary">
+                        <img src="/images/user-1.jpg" alt="Sarah" class="recipient-avatar-sm">
+                        <div>
+                          <h6 class="mb-0">Sarah Johnson</h6>
+                          <small class="text-muted">sarah@example.com</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="summary-item">
+                      <span>Amount</span>
+                      <span class="text-success fw-bold">$----</span>
+                    </div>
+                    <div class="summary-item">
+                      <span>Fee</span>
+                      <span class="text-muted">$----</span>
+                    </div>
+                    <hr>
+                    <div class="summary-item total">
+                      <span>Total</span>
+                      <span class="text-primary fw-bold">$----</span>
+                    </div>
+                  </div>
+                  
+                  <div class="transfer-timeline mt-4">
+                    <div class="timeline-item">
+                      <div class="timeline-icon">
+                        <i class="fas fa-clock"></i>
+                      </div>
+                      <div class="timeline-content">
+                        <h6>Estimated Delivery</h6>
+                        <p class="text-muted">Within 2 hours</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-outline-secondary prev-step"><i class="fas fa-arrow-left me-2"></i> Back</button>
+                  <button class="btn btn-success" id="confirmTransfer">
+                    <i class="fas fa-check-circle me-2"></i> Confirm Transfer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="boots/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="/js/transfer.js"></script>
+  <!-- Success Modal Container -->
+<div id="modalContainer"></div>
+</body>
+</html>

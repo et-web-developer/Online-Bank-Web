@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | NeoBank</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="boot/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* ===== DASHBOARD STYLES ===== */
+.dashboard-page {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Navbar Styling */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+.navbar-brand img {
+  transition: transform 0.3s;
+}
+
+.navbar-brand:hover img {
+  transform: scale(1.1);
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  background: white;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+
+/* Balance Cards */
+.balance-card {
+  border-radius: 10px;
+  transition: all 0.3s;
+  height: 100%;
+}
+
+.balance-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Quick Action Buttons */
+.btn-quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0.5rem;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: all 0.3s;
+}
+
+.btn-quick-action:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-quick-action h6 {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.btn-transfer { border-top: 3px solid #6c5ce7; }
+.btn-deposit { border-top: 3px solid #00b894; }
+.btn-bill { border-top: 3px solid #fd7e14; }
+.btn-invest { border-top: 3px solid #20c997; }
+
+/* Transaction Items */
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.list-group-item {
+  border-left: 0;
+  border-right: 0;
+  padding: 1.25rem 1.5rem;
+}
+
+.list-group-item:first-child {
+  border-top: 0;
+}
+
+/* Sidebar */
+.sidebar-card {
+  position: sticky;
+  top: 1rem;
+}
+
+.sidebar-card .nav-link {
+  color: #495057;
+  padding: 0.5rem 0;
+  transition: all 0.3s;
+}
+
+.sidebar-card .nav-link:hover {
+  color: #6c5ce7;
+  transform: translateX(5px);
+}
+
+.sidebar-card .nav-link i {
+  width: 20px;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .balance-card {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-quick-action {
+    padding: 1rem 0.5rem;
+  }
+  
+  .btn-quick-action i {
+    font-size: 1.5rem;
+  }
+}
+  </style>
+</head>
+<body class="dashboard-page">
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="/images/logo.png" alt="NeoBank" height="40" class="d-inline-block align-top me-2">
+        NeoBank
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/dashboard.html"><i class="fas fa-home me-1"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/transfer.html"><i class="fas fa-exchange-alt me-1"></i> Transfer</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/transactions.html"><i class="fas fa-history me-1"></i> Transactions</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div class="dropdown me-3">
+            <button class="btn btn-outline-light dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+              <i class="fas fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                No!
+              </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              <li><a class="dropdown-item" href="#">New transfer <span id="new-info">--</span></a></li>
+              <li><a class="dropdown-item" href="#">Payment <span id="new-info">--</span></a></li>
+              <li><a class="dropdown-item" href="#">Account statement <span id="new-info">--</span></a></li>
+            </ul>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+              <img src="/images/user-avatar.png" alt="User" class="rounded-circle me-1" width="30" height="30">
+              Me!
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/index.html" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content (aligned below navbar) -->
+  <div class="container-fluid pt-5 mt-4">
+    <div class="row">
+      <!-- Sidebar (optional) -->
+      <div class="col-md-3 d-none d-md-block">
+        <div class="card sidebar-card">
+          <div class="card-body">
+            <h5 class="card-title">Quick Access</h5>
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-piggy-bank me-2"></i> Savings</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-credit-card me-2"></i> Cards</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-chart-pie me-2"></i> Investments</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-file-invoice me-2"></i> Statements</a>
+              </li>
+            </ul>
+            
+            <hr>
+            
+            <h5 class="card-title mt-3">Budget</h5>
+            <div class="budget-progress">
+              <div class="d-flex justify-content-between">
+                <small>Spent: $----</small>
+                <small>Limit: $----</small>
+              </div>
+              <div class="progress mt-1">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Dashboard Content -->
+      <div class="col-md-9">
+        <!-- Balance Summary -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card balance-card bg-primary text-white">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2">Total Balance</h6>
+                <h2 class="card-title">$<span id="mainBalance">----</span></h2>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small>---% from last month</small>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card balance-card bg-success text-white">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2">Monthly Income</h6>
+                <h2 class="card-title">$<span id="incomeAmount">----</span></h2>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small id="tran-history">---- transactions</small>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card balance-card bg-info text-white">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2">Monthly Expenses</h6>
+                <h2 class="card-title">$<span id="expenseAmount">----</span></h2>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small id="tran-history_2">---- transactions</small>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Balance History</h5>
+                <select class="form-select form-select-sm w-auto">
+                  <option>Last 30 days</option>
+                  <option>Last 3 months</option>
+                  <option selected>Last year</option>
+                </select>
+              </div>
+              <div class="card-body">
+                <canvas id="balanceChart" height="250"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5 class="mb-0">Spending Categories</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="spendingChart" height="250"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Recent Transactions -->
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-6">
+                    <a href="/transfer.html" class="btn btn-quick-action btn-transfer w-100">
+                      <i class="fas fa-paper-plane fa-2x mb-2"></i>
+                      <h6>Send Money</h6>
+                    </a>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-quick-action btn-deposit w-100">
+                      <i class="fas fa-hand-holding-usd fa-2x mb-2"></i>
+                      <h6>Deposit</h6>
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-quick-action btn-bill w-100">
+                      <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i>
+                      <h6>Pay Bills</h6>
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-quick-action btn-invest w-100">
+                      <i class="fas fa-chart-line fa-2x mb-2"></i>
+                      <h6>Invest</h6>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Transactions</h5>
+                <a href="/transactions.html" class="btn btn-sm btn-outline-primary">View All</a>
+              </div>
+              <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                  <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                      <div class="d-flex align-items-center">
+                        <div class="transaction-icon bg-success me-3">
+                          <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">Salary Deposit</h6>
+                          <small class="text-muted">day, --:-- AM</small>
+                        </div>
+                      </div>
+                      <span class="text-success">+$----</span>
+                    </div>
+                  </a>
+                  <!-- More transactions add by js code or other-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="boots/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="/js/app.js"></script>
+  <script>
+    // Initialize Charts
+    document.addEventListener('DOMContentLoaded', function() {
+      // Balance Chart
+      const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+      new Chart(balanceCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Balance',
+            data: [12000, 15000, 18000, 21000, 23000, 24500],
+            borderColor: '#6c5ce7',
+            backgroundColor: 'rgba(108, 92, 231, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // Spending Chart
+      const spendingCtx = document.getElementById('spendingChart').getContext('2d');
+      new Chart(spendingCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Shopping', 'Food', 'Bills', 'Entertainment', 'Transport'],
+          datasets: [{
+            data: [35, 25, 20, 15, 5],
+            backgroundColor: [
+              '#6c5ce7',
+              '#00b894',
+              '#fd7e14',
+              '#e84393',
+              '#0984e3'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
